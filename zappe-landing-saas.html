@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zappé — Gestão inteligente para restaurantes</title>
+<meta name="description" content="Cardápio digital, pedidos via WhatsApp, financeiro e estoque integrados. +2.000 restaurantes já vendem mais com o Zappé.">
+<meta property="og:title" content="Zappé — Gestão inteligente para restaurantes">
+<meta property="og:description" content="Tudo que seu restaurante precisa em um só lugar. 14 dias grátis, sem cartão.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0914;--bg2:#100d1f;--bg3:#16122a;
+  --surface:#1c1835;--surface2:#221e3d;
+  --primary:#7c3aed;--primary2:#9d5ff5;--primary-glow:rgba(124,58,237,.15);--primary-pale:rgba(124,58,237,.08);
+  --lilac:#c4b5fd;--white:#f5f3ff;
+  --text:#d4cff5;--text-dim:#9b8fd0;        /* a11y bump */
+  --border:#2d2460;--border2:#3d3270;
+  --green:#10b981;--green-light:rgba(16,185,129,.12);
+  --amber:#f59e0b;--red:#ef4444;
+  --font:'Sora',system-ui,-apple-system,sans-serif;
+  --radius-card:20px;--radius-pill:100px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--font);font-size:16px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button,a{font-family:inherit}
+:focus-visible{outline:2px solid var(--primary2);outline-offset:3px;border-radius:6px}
+img,svg{display:block;max-width:100%}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 48px;display:flex;align-items:center;justify-content:space-between;transition:all .3s var(--ease)}
+nav.scrolled{background:rgba(248,250,252,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(14px)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;color:var(--white)}
+.nav-logo .z-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(37,99,235,.25)}
+.nav-logo span{color:var(--primary)}
+.nav-links{display:flex;align-items:center;gap:30px}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{background:linear-gradient(135deg,var(--primary),var(--primary2));color:var(--white);padding:10px 22px;border-radius:var(--radius-pill);font-size:14px;font-weight:700;text-decoration:none;transition:transform .2s var(--ease),box-shadow .2s var(--ease);box-shadow:0 4px 16px rgba(124,58,237,.35)}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(124,58,237,.45)}
+.nav-toggle{display:none;background:none;border:1px solid var(--border2);color:var(--white);width:40px;height:40px;border-radius:10px;font-size:18px;cursor:pointer}
+
+/* HERO */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:120px 48px 80px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-200px;left:-100px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.08),transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-200px;right:-100px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.05),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--primary-pale);border:1px solid rgba(37,99,235,.25);border-radius:var(--radius-pill);padding:6px 16px;font-size:12px;color:var(--lilac);margin-bottom:28px;font-weight:600}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--primary);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+h1{font-size:clamp(38px,5vw,64px);font-weight:800;line-height:1.07;letter-spacing:-.02em;margin-bottom:22px}
+h1 .accent{background:linear-gradient(135deg,var(--primary),var(--primary2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:17px;color:var(--text);max-width:460px;margin-bottom:36px;font-weight:400;line-height:1.75}
+.hero-sub strong{color:var(--primary);font-weight:600}
+.hero-ctas{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:var(--white);padding:14px 28px;border-radius:var(--radius-pill);font-size:15px;font-weight:700;text-decoration:none;transition:transform .2s var(--ease),box-shadow .2s var(--ease);display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(124,58,237,.4);border:0;cursor:pointer}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(124,58,237,.5)}
+.btn-ghost{color:var(--text);padding:14px 28px;border-radius:var(--radius-pill);font-size:15px;font-weight:500;text-decoration:none;border:1.5px solid var(--border2);transition:all .2s var(--ease);display:inline-flex;align-items:center;gap:8px;background:transparent;cursor:pointer}
+.btn-ghost:hover{border-color:var(--primary2);color:var(--lilac)}
+.btn-wa{background:#25d366;color:#fff;padding:14px 26px;border-radius:var(--radius-pill);font-size:15px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:transform .2s var(--ease),box-shadow .2s var(--ease);box-shadow:0 6px 24px rgba(37,211,102,.35)}
+.btn-wa:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(37,211,102,.5)}
+.hero-trust{display:flex;align-items:center;gap:14px;margin-top:34px;flex-wrap:wrap}
+.trust-avatars{display:flex}
+.trust-av{width:32px;height:32px;border-radius:50%;border:2px solid var(--bg);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--primary);margin-left:-8px}
+.trust-av:first-child{margin-left:0}
+.trust-text{font-size:13px;color:var(--text-dim)}
+.trust-text strong{color:var(--white);font-weight:600}
+
+/* HERO CARD */
+.hero-right{position:relative;display:flex;justify-content:center;align-items:center}
+.hero-card{background:var(--surface);border:1px solid var(--border);box-shadow:0 2px 24px rgba(30,64,175,.08);border-radius:var(--radius-card);padding:20px;width:320px;box-shadow:0 24px 64px rgba(0,0,0,.4),0 0 0 1px rgba(124,58,237,.1);animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.hc-title{font-size:13px;font-weight:700}
+.hc-date{font-size:11px;color:var(--text-dim)}
+.hc-kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.hc-kpi{background:var(--bg3);border-radius:10px;padding:11px;border:1px solid var(--border)}
+.hc-kpi-l{font-size:10px;color:var(--text-dim);margin-bottom:3px}
+.hc-kpi-v{font-size:20px;font-weight:800}
+.hc-kpi-v.p{color:var(--primary)}
+.hc-orders{background:var(--bg3);border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.hc-oh{padding:7px 11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);border-bottom:1px solid var(--border)}
+.hc-or{padding:8px 11px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text);border-bottom:1px solid rgba(45,36,96,.5)}
+.hc-or:last-child{border-bottom:none}
+.hs{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600}
+.s-ok{background:var(--green-light);color:var(--green)}
+.s-prep{background:var(--primary-pale);color:var(--primary)}
+.s-wait{background:rgba(245,158,11,.12);color:var(--amber)}
+.float-card{position:absolute;background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 20px rgba(30,64,175,.1);border-radius:12px;padding:10px 14px;box-shadow:0 8px 30px rgba(0,0,0,.3);animation:float 5s ease-in-out infinite}
+.float-1{top:-24px;right:-16px;animation-delay:-2s}
+.float-2{bottom:10px;left:-36px;animation-delay:-4s}
+.float-val{font-size:18px;font-weight:800;color:var(--primary)}
+.float-label{font-size:10px;color:var(--text-dim);margin-top:1px}
+.float-up{font-size:10px;color:var(--green);font-weight:700}
+
+/* LOGOS */
+.logos-wrap{padding:30px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;position:relative;background:var(--bg2)}
+.logos-wrap::before,.logos-wrap::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
+.logos-wrap::before{left:0;background:linear-gradient(90deg,var(--bg2),transparent)}
+.logos-wrap::after{right:0;background:linear-gradient(-90deg,var(--bg2),transparent)}
+.logos-track{display:flex;gap:48px;animation:scroll 22s linear infinite;width:max-content}
+@keyframes scroll{to{transform:translateX(-50%)}}
+.logo-item{font-size:13px;font-weight:600;color:var(--text-dim);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.logo-item::before{content:'⚡';font-size:11px;color:var(--primary)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);max-width:1200px;margin:0 auto;padding:56px 48px}
+.stat{text-align:center;padding:24px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-num{font-size:42px;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--primary2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.stat-label{font-size:12px;color:var(--text-dim);margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
+
+/* SECTION */
+.section{padding:80px 48px;max-width:1200px;margin:0 auto}
+.s-label{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--primary);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.s-label::before{content:'';width:14px;height:2px;background:var(--primary);border-radius:2px}
+.s-title{font-size:clamp(28px,3.5vw,46px);font-weight:800;line-height:1.1;letter-spacing:-.02em;max-width:560px;margin-bottom:14px;color:var(--white)}
+.s-sub{font-size:17px;color:var(--text);max-width:440px;line-height:1.75;margin-bottom:48px}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.feat-card{background:var(--surface);padding:28px;transition:background .2s;cursor:default}
+.feat-card:hover{background:var(--bg3)}
+.feat-icon{width:46px;height:46px;border-radius:12px;background:var(--primary-pale);border:1px solid rgba(37,99,235,.15);display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:22px}
+.feat-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.feat-desc{font-size:13px;color:var(--text);line-height:1.7}
+.feat-tag{display:inline-block;margin-top:12px;font-size:11px;color:var(--primary);background:var(--primary-pale);padding:3px 10px;border-radius:4px;font-weight:600}
+
+/* SPLIT */
+.split{padding:80px 48px;background:var(--bg2)}
+.split-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1.3fr;gap:72px;align-items:center}
+.split-list{display:flex;flex-direction:column;gap:16px;margin-top:28px}
+.split-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:12px;border:1px solid transparent;transition:all .2s;cursor:default}
+.split-item:hover{background:var(--bg3);border-color:var(--border2)}
+.split-icon{width:38px;height:38px;border-radius:10px;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.split-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.split-desc{font-size:12px;color:var(--text);line-height:1.6}
+.dash-mock{background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 24px rgba(30,64,175,.08);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.mock-bar{background:var(--bg3);padding:9px 14px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
+.mock-url{flex:1;text-align:center;font-size:10px;color:var(--text-dim)}
+.mock-body{padding:14px}
+.m-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+.m-kpi{background:var(--bg3);border-radius:8px;padding:10px;border:1px solid var(--border)}
+.m-kpi-l{font-size:9px;color:var(--text-dim);margin-bottom:3px}
+.m-kpi-v{font-size:16px;font-weight:800}
+.m-kpi-v.p{color:var(--primary)}
+.m-orders{background:var(--bg3);border-radius:8px;border:1px solid var(--border);overflow:hidden}
+.m-oh{padding:7px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);border-bottom:1px solid var(--border)}
+.m-or{padding:7px 10px;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--text);border-bottom:1px solid rgba(45,36,96,.4)}
+.m-or:last-child{border-bottom:none}
+.mp{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:600}
+
+/* STEPS */
+.steps{padding:80px 48px;max-width:1200px;margin:0 auto}
+.steps-grid{display:grid;grid-template-columns:repeat(5,1fr);position:relative;margin-top:48px;gap:16px}
+.steps-grid::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:1px;background:var(--border)}
+.step{text-align:center;padding:0 10px}
+.step-circle{width:56px;height:56px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--primary);margin:0 auto 16px;position:relative;z-index:1}
+.step:first-child .step-circle{background:linear-gradient(135deg,var(--primary),var(--primary2));border:none;color:#fff;box-shadow:0 4px 16px rgba(37,99,235,.35)}
+.step-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.step-desc{font-size:11px;color:var(--text-dim);line-height:1.5}
+
+/* PRICING */
+.pricing{padding:80px 48px;max-width:1200px;margin:0 auto}
+.billing-toggle{display:inline-flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:4px;margin:18px auto 36px;gap:4px}
+.bt-opt{padding:8px 18px;font-size:13px;font-weight:600;color:var(--text-dim);border-radius:var(--radius-pill);cursor:pointer;border:0;background:transparent;transition:all .2s}
+.bt-opt.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.bt-save{font-size:10px;background:var(--green-light);color:var(--green);padding:2px 6px;border-radius:8px;margin-left:6px;font-weight:700}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.p-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);padding:32px 26px;position:relative;transition:transform .2s var(--ease),border-color .2s}
+.p-card:hover{border-color:var(--border2);transform:translateY(-4px)}
+.p-card.pop{background:linear-gradient(160deg,#1e3a8a,#1e40af);border:1px solid rgba(37,99,235,.5);box-shadow:0 0 40px rgba(37,99,235,.15)}
+.pop-tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--primary),var(--primary2));color:var(--white);font-size:11px;font-weight:700;padding:4px 16px;border-radius:var(--radius-pill);white-space:nowrap}
+.p-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:12px}
+.p-price{font-size:48px;font-weight:800;line-height:1;margin-bottom:4px}
+.p-price sup{font-size:18px;vertical-align:top;margin-top:10px;display:inline-block;font-weight:600}
+.p-price sub{font-size:13px;font-weight:400;color:var(--text-dim)}
+.p-desc{font-size:13px;color:var(--text-dim);margin:6px 0 22px}
+.p-div{height:1px;background:var(--border);margin-bottom:18px}
+.p-feat{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;font-size:13px;color:var(--text)}
+.p-feat .ck{color:var(--green);flex-shrink:0;font-weight:700}
+.p-feat .no{color:var(--text-dim);flex-shrink:0}
+.p-btn{display:block;text-align:center;margin-top:22px;padding:12px;border-radius:var(--radius-pill);font-size:13px;font-weight:700;text-decoration:none;transition:all .2s;border:1.5px solid var(--border2);color:var(--white)}
+.p-btn:hover{border-color:var(--primary2);color:var(--lilac)}
+.p-btn.solid{background:linear-gradient(135deg,var(--primary),var(--primary2));border:none;box-shadow:0 4px 16px rgba(124,58,237,.35)}
+.p-btn.solid:hover{box-shadow:0 6px 24px rgba(124,58,237,.5);transform:translateY(-1px)}
+
+/* TESTIMONIALS */
+.testi{padding:80px 48px;background:var(--bg2)}
+.testi-inner{max-width:1200px;margin:0 auto}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:44px}
+.t-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;transition:transform .2s var(--ease),border-color .2s}
+.t-card:hover{transform:translateY(-3px);border-color:var(--border2)}
+.t-stars{color:#f59e0b;font-size:13px;letter-spacing:2px;margin-bottom:10px}
+.t-quote{font-size:13px;color:var(--text);line-height:1.75;margin-bottom:16px;font-style:italic}
+.t-author{display:flex;align-items:center;gap:10px}
+.t-av{width:36px;height:36px;border-radius:50%;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--primary)}
+.t-name{font-size:12px;font-weight:700}
+.t-role{font-size:11px;color:var(--text-dim)}
+
+/* FAQ */
+.faq{padding:80px 48px;max-width:880px;margin:0 auto}
+.faq-list{margin-top:36px;border-top:1px solid var(--border)}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{width:100%;background:none;border:0;color:var(--white);text-align:left;padding:20px 0;font-size:16px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;font-family:inherit}
+.faq-q::after{content:'+';font-size:22px;color:var(--primary);transition:transform .2s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s var(--ease);color:var(--text);font-size:14px;line-height:1.75}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:20px}
+
+/* CTA */
+.cta{padding:100px 48px;text-align:center;position:relative;overflow:hidden}
+.cta-glow{position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 100%,rgba(37,99,235,.08),transparent);pointer-events:none}
+.cta h2{font-size:clamp(34px,5vw,60px);font-weight:800;letter-spacing:-.02em;margin-bottom:16px;line-height:1.05}
+.cta h2 span{background:linear-gradient(135deg,var(--primary),var(--primary2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cta p{font-size:17px;color:var(--text);max-width:440px;margin:0 auto 36px;line-height:1.75}
+.cta-note{font-size:12px;color:var(--text-dim);margin-top:14px}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:48px 48px 28px;background:var(--bg)}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:40px}
+.f-brand{font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px}
+.f-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:flex;align-items:center;justify-content:center;font-size:14px}
+.f-brand span{color:var(--primary)}
+.f-tagline{font-size:12px;color:var(--text-dim);margin-top:10px;line-height:1.7}
+.f-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:14px}
+.f-links{list-style:none}
+.f-links li{margin-bottom:9px}
+.f-links a{font-size:13px;color:var(--text-dim);text-decoration:none;transition:color .2s}
+.f-links a:hover{color:var(--white)}
+.f-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:22px;border-top:1px solid var(--border);font-size:12px;color:var(--text-dim);flex-wrap:wrap;gap:12px}
+.f-bottom a{color:var(--primary);text-decoration:none;font-weight:600}
+
+/* WHATSAPP FLOAT */
+.wa-fab{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;text-decoration:none;box-shadow:0 8px 30px rgba(37,211,102,.5);z-index:90;transition:transform .2s var(--ease)}
+.wa-fab:hover{transform:scale(1.08)}
+.wa-fab::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid #25d366;opacity:.6;animation:ring 2s infinite}
+@keyframes ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.4);opacity:0}}
+
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+/* RESPONSIVE */
+@media (max-width:1024px){
+  nav{padding:14px 24px}
+  .nav-links{gap:18px}
+  .hero{grid-template-columns:1fr;padding:110px 24px 60px;gap:60px}
+  .hero-right{order:-1}
+  .hero-card{width:min(340px,90%)}
+  .section,.split,.steps,.pricing,.testi,.cta,.faq{padding-left:24px;padding-right:24px}
+  .split-inner{grid-template-columns:1fr;gap:40px}
+  .stats{grid-template-columns:repeat(2,1fr);padding:48px 24px}
+  .stat:nth-child(2){border-right:none}
+  .stat:nth-child(-n+2){border-bottom:1px solid var(--border)}
+  .feat-grid{grid-template-columns:repeat(2,1fr)}
+  .steps-grid{grid-template-columns:repeat(2,1fr)}
+  .steps-grid::before{display:none}
+  .pricing-grid{grid-template-columns:1fr;max-width:420px;margin:0 auto}
+  .testi-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+}
+@media (max-width:640px){
+  nav{padding:12px 18px}
+  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(11,9,20,.98);backdrop-filter:blur(14px);flex-direction:column;padding:18px;gap:14px;border-bottom:1px solid var(--border)}
+  .nav-links.open{display:flex}
+  .nav-toggle{display:flex;align-items:center;justify-content:center}
+  .hero{padding:100px 18px 48px}
+  .hero-ctas .btn-primary,.hero-ctas .btn-ghost,.hero-ctas .btn-wa{width:100%;justify-content:center}
+  .section,.split,.steps,.pricing,.testi,.cta,.faq,footer{padding-left:18px;padding-right:18px}
+  .feat-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .stat{border-right:none!important;border-bottom:1px solid var(--border)}
+  .stat:last-child{border-bottom:none}
+  .steps-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr;gap:24px}
+  .f-bottom{flex-direction:column;text-align:center}
+  .float-card{display:none}
+  .wa-fab{width:54px;height:54px;font-size:26px;bottom:18px;right:18px}
+}
+
+.p-card.pop .p-name{color:#bfdbfe}
+.p-card.pop .p-price{color:#fff}
+.p-card.pop .p-desc{color:#93c5fd}
+.p-card.pop .p-feat{color:#dbeafe}
+.p-card.pop .ck{color:#6ee7b7}
+.p-card.pop .no{color:#60a5fa}
+.hero-badge{background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);color:var(--primary)}
+h1 .accent{background:linear-gradient(135deg,var(--primary),#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.t-quote{color:var(--text)}
+</style>
+</head>
+<body>
+
+<nav id="nav" aria-label="Principal">
+  <a href="#" class="nav-logo" aria-label="Zappé">
+    <div class="z-icon" aria-hidden="true">⚡</div>
+    Zapp<span>é</span>
+  </a>
+  <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+  <div class="nav-links" id="navLinks">
+    <a href="#funcionalidades">Funcionalidades</a>
+    <a href="#como-funciona">Como funciona</a>
+    <a href="#precos">Preços</a>
+    <a href="#faq">FAQ</a>
+    <a href="#trial" class="nav-cta">Teste grátis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div><div class="hero-glow2" aria-hidden="true"></div>
+  <div>
+    <div class="hero-badge">Novo · Gestão com IA para restaurantes</div>
+    <h1>Seu restaurante no<br>próximo nível<br><span class="accent">com IA.</span></h1>
+    <p class="hero-sub">Cardápio digital, pedidos via <strong>WhatsApp</strong>, financeiro e estoque — tudo integrado. Desenvolvido pela <strong>Inovasistema</strong>.</p>
+    <div class="hero-ctas">
+      <a href="#trial" class="btn-primary">Testar grátis 14 dias →</a>
+      <a href="https://wa.me/5573981129981?text=Olá!%20Quero%20conhecer%20o%20Zappé" class="btn-wa" target="_blank" rel="noopener">💬 Falar no WhatsApp</a>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-avatars" aria-hidden="true">
+        <div class="trust-av">MF</div><div class="trust-av">AC</div><div class="trust-av">RL</div><div class="trust-av">JP</div>
+      </div>
+      <div class="trust-text"><strong>+2.000 restaurantes</strong> já usam o Zappé</div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="float-card float-1"><div class="float-val">+32%</div><div class="float-label">Faturamento no 1º mês</div></div>
+    <div class="hero-card">
+      <div class="hc-head"><div class="hc-title">Hoje · Seg 02/06 👋</div><div class="hc-date">Caixa aberto</div></div>
+      <div class="hc-kpis">
+        <div class="hc-kpi"><div class="hc-kpi-l">Faturamento</div><div class="hc-kpi-v p">R$ 1.847</div></div>
+        <div class="hc-kpi"><div class="hc-kpi-l">Pedidos hoje</div><div class="hc-kpi-v">47</div></div>
+        <div class="hc-kpi"><div class="hc-kpi-l">Ticket médio</div><div class="hc-kpi-v">R$ 39</div></div>
+        <div class="hc-kpi"><div class="hc-kpi-l">CMV</div><div class="hc-kpi-v">31%</div></div>
+      </div>
+      <div class="hc-orders">
+        <div class="hc-oh">Pedidos recentes</div>
+        <div class="hc-or">#0047 · 2x Pizza, 1x Suco <span class="hs s-ok">Entregue</span></div>
+        <div class="hc-or">#0046 · X-Burguer, Batata <span class="hs s-prep">Preparo</span></div>
+        <div class="hc-or">#0045 · 3x Açaí 500ml <span class="hs s-wait">Aguardando</span></div>
+      </div>
+    </div>
+    <div class="float-card float-2"><div class="float-up">▲ 12% hoje</div><div class="float-label">vs. ontem</div></div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<div class="logos-wrap" aria-label="Clientes Zappé">
+  <div class="logos-track">
+    <span class="logo-item">Pizzaria Don Marco</span><span class="logo-item">Hamburgueria 77</span><span class="logo-item">Sushi Kenzo</span><span class="logo-item">Cantina Bella</span><span class="logo-item">Açaí Premium</span><span class="logo-item">Churrascaria Central</span><span class="logo-item">Café Aroma</span><span class="logo-item">Boteco da Vila</span>
+    <span class="logo-item">Pizzaria Don Marco</span><span class="logo-item">Hamburgueria 77</span><span class="logo-item">Sushi Kenzo</span><span class="logo-item">Cantina Bella</span><span class="logo-item">Açaí Premium</span><span class="logo-item">Churrascaria Central</span><span class="logo-item">Café Aroma</span><span class="logo-item">Boteco da Vila</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats fade-up">
+  <div class="stat"><div class="stat-num">2k+</div><div class="stat-label">Restaurantes ativos</div></div>
+  <div class="stat"><div class="stat-num">R$12M</div><div class="stat-label">Processados/mês</div></div>
+  <div class="stat"><div class="stat-num">99%</div><div class="stat-label">Satisfação</div></div>
+  <div class="stat"><div class="stat-num">30min</div><div class="stat-label">Para o 1º pedido</div></div>
+</div>
+
+<!-- FEATURES -->
+<section class="section fade-up" id="funcionalidades">
+  <div class="s-label">Funcionalidades</div>
+  <h2 class="s-title">Tudo que seu restaurante precisa</h2>
+  <p class="s-sub">Módulos integrados para simplificar cada parte da operação.</p>
+  <div class="feat-grid">
+    <div class="feat-card"><div class="feat-icon">🍽️</div><div class="feat-title">Cardápio digital</div><div class="feat-desc">Link personalizado com fotos, categorias e preços. Atualização em tempo real no WhatsApp dos clientes.</div><span class="feat-tag">Todos os planos</span></div>
+    <div class="feat-card"><div class="feat-icon">💬</div><div class="feat-title">Pedidos via WhatsApp</div><div class="feat-desc">IA interpreta pedidos em linguagem natural e encaminha à cozinha automaticamente.</div><span class="feat-tag">IA integrada</span></div>
+    <div class="feat-card"><div class="feat-icon">📺</div><div class="feat-title">KDS — Display de cozinha</div><div class="feat-desc">Pedidos em tempo real na tela da cozinha. Sem papel, sem grito, sem confusão.</div><span class="feat-tag">Tempo real</span></div>
+    <div class="feat-card"><div class="feat-icon">💰</div><div class="feat-title">Gestão financeira</div><div class="feat-desc">Caixa, DRE simplificado, receitas e despesas num painel limpo e fácil de entender.</div><span class="feat-tag">NFC-e inclusa</span></div>
+    <div class="feat-card"><div class="feat-icon">📦</div><div class="feat-title">Controle de estoque</div><div class="feat-desc">Ficha técnica das receitas e baixa automática no estoque a cada venda. CMV calculado sem planilha.</div><span class="feat-tag">Baixa automática</span></div>
+    <div class="feat-card"><div class="feat-icon">📣</div><div class="feat-title">Marketing e fidelização</div><div class="feat-desc">Cupons, cashback, base de clientes e integração com Pixel Facebook e Google.</div><span class="feat-tag">Plano Gestão Total</span></div>
+  </div>
+</section>
+
+<!-- SPLIT -->
+<section class="split fade-up" id="demo">
+  <div class="split-inner">
+    <div>
+      <div class="s-label">Dashboard</div>
+      <h2 class="s-title">Painel que realmente faz sentido</h2>
+      <div class="split-list">
+        <div class="split-item"><div class="split-icon">⚡</div><div><div class="split-title">Visão em tempo real</div><div class="split-desc">Pedidos, caixa e estoque numa só tela — sem abrir vários sistemas.</div></div></div>
+        <div class="split-item"><div class="split-icon">📊</div><div><div class="split-title">Relatórios automáticos</div><div class="split-desc">Fechamento do dia gerado sem precisar calcular nada.</div></div></div>
+        <div class="split-item"><div class="split-icon">📱</div><div><div class="split-title">Acesso pelo celular</div><div class="split-desc">Acompanhe a operação de qualquer lugar, a qualquer hora.</div></div></div>
+      </div>
+    </div>
+    <div class="dash-mock">
+      <div class="mock-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="mock-url">app.zappe.com.br — Dashboard</div></div>
+      <div class="mock-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-size:11px;font-weight:700">Bom dia, Marcos 👋</span><span style="font-size:9px;color:var(--text-dim)">Seg, 02 Jun</span></div>
+        <div class="m-kpis">
+          <div class="m-kpi"><div class="m-kpi-l">Faturamento</div><div class="m-kpi-v p">R$ 1.847</div></div>
+          <div class="m-kpi"><div class="m-kpi-l">Pedidos</div><div class="m-kpi-v">47</div></div>
+          <div class="m-kpi"><div class="m-kpi-l">Ticket médio</div><div class="m-kpi-v">R$ 39</div></div>
+        </div>
+        <div class="m-orders">
+          <div class="m-oh">Pedidos recentes</div>
+          <div class="m-or">#0047 · 2x Pizza, 1x Suco<span class="mp s-ok">Entregue</span></div>
+          <div class="m-or">#0046 · X-Burguer, Batata<span class="mp s-prep">Preparo</span></div>
+          <div class="m-or">#0045 · 3x Açaí 500ml<span class="mp s-wait">Aguardando</span></div>
+          <div class="m-or">#0044 · Prato Feito Esp.<span class="mp s-ok">Entregue</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="steps fade-up" id="como-funciona">
+  <div style="text-align:center"><div class="s-label" style="display:inline-flex">Como funciona</div><h2 class="s-title" style="max-width:100%;text-align:center;margin:12px auto 0">Do cadastro ao primeiro pedido<br>em menos de 30 minutos</h2></div>
+  <div class="steps-grid">
+    <div class="step"><div class="step-circle">01</div><div class="step-title">Cadastro grátis</div><div class="step-desc">Sem cartão. Conta em 2 minutos.</div></div>
+    <div class="step"><div class="step-circle">02</div><div class="step-title">Configure</div><div class="step-desc">Nome, logo, endereço e horários.</div></div>
+    <div class="step"><div class="step-circle">03</div><div class="step-title">Monte o cardápio</div><div class="step-desc">Fotos, preços e categorias.</div></div>
+    <div class="step"><div class="step-circle">04</div><div class="step-title">Compartilhe</div><div class="step-desc">Link no WhatsApp e redes.</div></div>
+    <div class="step"><div class="step-circle">05</div><div class="step-title">Receba pedidos</div><div class="step-desc">Organizados no painel e cozinha.</div></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing fade-up" id="precos">
+  <div style="text-align:center;margin-bottom:24px"><div class="s-label" style="display:inline-flex">Planos</div><h2 class="s-title" style="max-width:100%;text-align:center;margin:12px auto 0">Preço justo para cada tamanho</h2><p class="s-sub" style="text-align:center;max-width:380px;margin:10px auto 0">Comece no básico e escale. Sem fidelidade.</p></div>
+  <div style="text-align:center">
+    <div class="billing-toggle" role="tablist" aria-label="Ciclo de cobrança">
+      <button class="bt-opt active" data-cycle="monthly" role="tab" aria-selected="true">Mensal</button>
+      <button class="bt-opt" data-cycle="yearly" role="tab" aria-selected="false">Anual <span class="bt-save">−20%</span></button>
+    </div>
+  </div>
+  <div class="pricing-grid">
+    <div class="p-card">
+      <div class="p-name">Básico</div><div class="p-price"><sup>R$</sup><span data-monthly="79" data-yearly="63">79</span><sub>/mês</sub></div><div class="p-desc">Para quem está começando</div><div class="p-div"></div>
+      <div class="p-feat"><span class="ck">✓</span> Cardápio digital personalizado</div>
+      <div class="p-feat"><span class="ck">✓</span> Pedidos via WhatsApp</div>
+      <div class="p-feat"><span class="ck">✓</span> Relatório básico de vendas</div>
+      <div class="p-feat"><span class="ck">✓</span> 1 usuário</div>
+      <div class="p-feat"><span class="no">—</span> Gestão financeira</div>
+      <div class="p-feat"><span class="no">—</span> Estoque e CMV</div>
+      <a href="#" class="p-btn">Começar grátis</a>
+    </div>
+    <div class="p-card pop">
+      <div class="pop-tag">Mais popular</div>
+      <div class="p-name">Profissional</div><div class="p-price"><sup>R$</sup><span data-monthly="149" data-yearly="119">149</span><sub>/mês</sub></div><div class="p-desc">Para restaurantes em crescimento</div><div class="p-div"></div>
+      <div class="p-feat"><span class="ck">✓</span> Tudo do Básico</div>
+      <div class="p-feat"><span class="ck">✓</span> Gestão financeira completa</div>
+      <div class="p-feat"><span class="ck">✓</span> Controle de estoque + CMV</div>
+      <div class="p-feat"><span class="ck">✓</span> KDS — display de cozinha</div>
+      <div class="p-feat"><span class="ck">✓</span> NFC-e integrada</div>
+      <div class="p-feat"><span class="ck">✓</span> 3 usuários</div>
+      <a href="#" class="p-btn solid">Começar grátis</a>
+    </div>
+    <div class="p-card">
+      <div class="p-name">Gestão Total</div><div class="p-price"><sup>R$</sup><span data-monthly="249" data-yearly="199">249</span><sub>/mês</sub></div><div class="p-desc">Operação completa com marketing</div><div class="p-div"></div>
+      <div class="p-feat"><span class="ck">✓</span> Tudo do Profissional</div>
+      <div class="p-feat"><span class="ck">✓</span> Marketing e fidelização</div>
+      <div class="p-feat"><span class="ck">✓</span> Cupons e cashback</div>
+      <div class="p-feat"><span class="ck">✓</span> Pixel Facebook e Google</div>
+      <div class="p-feat"><span class="ck">✓</span> Usuários ilimitados</div>
+      <div class="p-feat"><span class="ck">✓</span> Suporte prioritário</div>
+      <a href="#" class="p-btn">Começar grátis</a>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:13px;color:var(--text-dim);margin-top:18px">14 dias grátis em qualquer plano · Sem cartão · Cancele quando quiser</p>
+</section>
+
+<!-- TESTI -->
+<section class="testi fade-up">
+  <div class="testi-inner">
+    <div style="text-align:center"><div class="s-label" style="display:inline-flex">Depoimentos</div><h2 class="s-title" style="max-width:100%;text-align:center;margin:12px auto 0">O que dizem nossos clientes</h2></div>
+    <div class="testi-grid">
+      <div class="t-card"><div class="t-stars" aria-label="5 estrelas">★★★★★</div><p class="t-quote">"Antes eu perdia pedido todo dia no WhatsApp. Agora o sistema organiza tudo automaticamente. Aumentei 30% o faturamento no primeiro mês."</p><div class="t-author"><div class="t-av">MF</div><div><div class="t-name">Marcos Ferreira</div><div class="t-role">Hamburgueria Artesanal · Salvador, BA</div></div></div></div>
+      <div class="t-card"><div class="t-stars" aria-label="5 estrelas">★★★★★</div><p class="t-quote">"O controle de estoque foi um divisor de águas. Hoje sei exatamente quanto custa cada prato e onde estou perdendo dinheiro."</p><div class="t-author"><div class="t-av">AC</div><div><div class="t-name">Ana Clara</div><div class="t-role">Cantina Italiana · Itabuna, BA</div></div></div></div>
+      <div class="t-card"><div class="t-stars" aria-label="5 estrelas">★★★★★</div><p class="t-quote">"Implantação muito simples. Em 20 minutos o cardápio estava no ar. O suporte da Inovasistema respondeu na hora quando precisei."</p><div class="t-author"><div class="t-av">RL</div><div><div class="t-name">Ricardo Lima</div><div class="t-role">Açaí & Cia · Feira de Santana, BA</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq fade-up" id="faq">
+  <div style="text-align:center"><div class="s-label" style="display:inline-flex">Perguntas frequentes</div><h2 class="s-title" style="max-width:100%;text-align:center;margin:12px auto 0">Tudo que você quer saber</h2></div>
+  <div class="faq-list">
+    <div class="faq-item"><button class="faq-q">Preciso de cartão de crédito para testar?</button><div class="faq-a">Não. Você cria a conta em 2 minutos e tem 14 dias completos para testar todas as funcionalidades. Sem cartão, sem cobrança automática.</div></div>
+    <div class="faq-item"><button class="faq-q">O Zappé funciona para qualquer tipo de restaurante?</button><div class="faq-a">Sim — pizzarias, hamburguerias, açaiterias, cafeterias, cantinas, food trucks e dark kitchens. O sistema se adapta ao seu modelo de operação.</div></div>
+    <div class="faq-item"><button class="faq-q">Como funciona a integração com WhatsApp?</button><div class="faq-a">Geramos um link personalizado do seu cardápio. O cliente faz o pedido pelo WhatsApp e o sistema interpreta com IA, organiza e envia para a cozinha automaticamente.</div></div>
+    <div class="faq-item"><button class="faq-q">Tem fidelidade ou multa para cancelar?</button><div class="faq-a">Nenhuma. Você pode cancelar a qualquer momento direto pelo painel — sem ligação, sem burocracia.</div></div>
+    <div class="faq-item"><button class="faq-q">O suporte é em português?</button><div class="faq-a">Sim, equipe 100% brasileira via WhatsApp e e-mail. Plano Gestão Total tem prioridade de atendimento.</div></div>
+    <div class="faq-item"><button class="faq-q">Emite NFC-e?</button><div class="faq-a">Sim, NFC-e integrada nos planos Profissional e Gestão Total — configuração assistida pelo nosso time.</div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta fade-up" id="trial">
+  <div class="cta-glow" aria-hidden="true"></div>
+  <h2>Pronto para<br><span>crescer de verdade?</span></h2>
+  <p>Junte-se a milhares de restaurantes que já transformaram a operação com o Zappé.</p>
+  <div class="hero-ctas" style="justify-content:center">
+    <a href="#" class="btn-primary">Criar conta grátis agora →</a>
+    <a href="#" class="btn-ghost">Falar com especialista</a>
+  </div>
+  <p class="cta-note">14 dias grátis · Sem cartão · Suporte em português</p>
+</section>
+
+<!-- FOOTER -->
+<footer id="contato">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="f-brand"><div class="f-icon" aria-hidden="true">⚡</div>Zapp<span>é</span></div>
+        <p class="f-tagline">Sistema de gestão inteligente para restaurantes.<br>Desenvolvido pela Inovasistema.</p>
+        <div style="margin-top:14px;font-size:12px;color:var(--text-dim)">contato@inovasistema.com<br>+55 73 98112-9981 · Bahia, Brasil</div>
+      </div>
+      <div><div class="f-col-title">Produto</div><ul class="f-links"><li><a href="#funcionalidades">Funcionalidades</a></li><li><a href="#precos">Preços</a></li><li><a href="#">Roadmap</a></li><li><a href="#">Atualizações</a></li></ul></div>
+      <div><div class="f-col-title">Empresa</div><ul class="f-links"><li><a href="https://inovasistema.com" target="_blank" rel="noopener">Inovasistema</a></li><li><a href="#">Blog</a></li><li><a href="#">Parceiros</a></li><li><a href="#">Carreiras</a></li></ul></div>
+      <div><div class="f-col-title">Suporte</div><ul class="f-links"><li><a href="#faq">Central de ajuda</a></li><li><a href="#">Documentação</a></li><li><a href="#contato">Contato</a></li><li><a href="#">Status</a></li></ul></div>
+    </div>
+    <div class="f-bottom"><span>© 2026 Zappé. Todos os direitos reservados.</span><span>Desenvolvido por <a href="https://inovasistema.com" target="_blank" rel="noopener">Inovasistema</a></span></div>
+  </div>
+</footer>
+
+<a class="wa-fab" href="https://wa.me/5573981129981?text=Olá!%20Quero%20conhecer%20o%20Zappé" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">💬</a>
+
+<script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>40));
+const obs=new IntersectionObserver(e=>e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible')}),{threshold:.1});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+
+// mobile menu
+const tog=document.getElementById('navToggle'),lnk=document.getElementById('navLinks');
+tog.addEventListener('click',()=>{const o=lnk.classList.toggle('open');tog.setAttribute('aria-expanded',o);tog.textContent=o?'✕':'☰'});
+lnk.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{lnk.classList.remove('open');tog.textContent='☰';tog.setAttribute('aria-expanded','false')}));
+
+// faq
+document.querySelectorAll('.faq-item').forEach(item=>{
+  item.querySelector('.faq-q').addEventListener('click',()=>item.classList.toggle('open'));
+});
+
+// pricing toggle
+document.querySelectorAll('.bt-opt').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.bt-opt').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false')});
+    btn.classList.add('active');btn.setAttribute('aria-selected','true');
+    const cycle=btn.dataset.cycle;
+    document.querySelectorAll('.p-price span[data-monthly]').forEach(s=>{
+      s.textContent=cycle==='yearly'?s.dataset.yearly:s.dataset.monthly;
+    });
+  });
+});
+</script>
+</body>
+</html>
